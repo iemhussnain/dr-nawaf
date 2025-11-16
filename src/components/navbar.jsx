@@ -58,8 +58,10 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {session ? (
               <>
-                <Link href="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
+                <Link href={session.user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}>
+                  <Button variant="ghost">
+                    {session.user.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+                  </Button>
                 </Link>
                 <Button variant="outline" onClick={() => signOut()}>
                   Sign Out
@@ -121,9 +123,9 @@ export function Navbar() {
             <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
               {session ? (
                 <>
-                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={session.user.role === 'admin' ? '/admin/dashboard' : '/dashboard'} onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
-                      Dashboard
+                      {session.user.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
                     </Button>
                   </Link>
                   <Button
