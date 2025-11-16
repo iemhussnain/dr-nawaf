@@ -1,34 +1,61 @@
 // Use require for nodemailer due to Next.js 16 + Turbopack compatibility
 const nodemailer = require('nodemailer')
 
-// Create reusable transporter
-const transporter = nodemailer.createTransporter({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  secure: process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-})
+// Lazy-loaded transporter (only initialize when needed)
+let transporter = null
+
+/**
+ * Get or create email transporter
+ */
+function getTransporter() {
+  // Check if SMTP is configured
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER) {
+    return null
+  }
+
+  // Create transporter if not exists
+  if (!transporter) {
+    transporter = nodemailer.createTransporter({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT || '587'),
+      secure: process.env.EMAIL_SECURE === 'true',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    })
+  }
+
+  return transporter
+}
 
 /**
  * Send email
  */
 export async function sendEmail({ to, subject, html, text }) {
+  const emailTransporter = getTransporter()
+
+  // If SMTP not configured, just log and return success (for development)
+  if (!emailTransporter) {
+    console.log('⚠️  SMTP not configured. Email would be sent to:', to)
+    console.log('📧 Subject:', subject)
+    console.log('📝 Content:', text || html?.substring(0, 100))
+    return { success: true, messageId: 'dev-mode-no-smtp' }
+  }
+
   try {
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+    const info = await emailTransporter.sendMail({
+      from: process.env.EMAIL_FROM || 'noreply@dr-nawaf.com',
       to,
       subject,
       text,
       html,
     })
 
-    console.log('Email sent:', info.messageId)
+    console.log('✅ Email sent:', info.messageId)
     return { success: true, messageId: info.messageId }
   } catch (error) {
-    console.error('Email error:', error)
+    console.error('❌ Email error:', error)
     return { success: false, error: error.message }
   }
 }
