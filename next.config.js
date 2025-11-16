@@ -5,11 +5,19 @@ const nextConfig = {
 
   // Image optimization configuration
   images: {
-    domains: [
-      'localhost',
-      // Add your production domain
-      'dr-nawaf.com',
-      // Add any CDN domains you use
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dr-nawaf.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.dr-nawaf.com',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -75,13 +83,19 @@ const nextConfig = {
     return []
   },
 
+  // Turbopack configuration (Next.js 16+)
+  turbopack: {
+    // Add Turbopack-specific configuration here if needed
+    // Empty object silences the webpack/turbopack warning
+  },
+
   // Experimental features
   experimental: {
     // Enable optimizeCss in production
     optimizeCss: process.env.NODE_ENV === 'production',
   },
 
-  // Webpack configuration
+  // Webpack configuration (fallback for --webpack mode)
   webpack: (config, { isServer }) => {
     // Add any custom webpack configuration here
     return config
