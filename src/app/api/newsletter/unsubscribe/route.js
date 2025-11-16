@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/dbConnect'
 import Newsletter from '@/models/Newsletter'
-import { asyncHandler } from '@/lib/errorHandler'
+import { asyncHandler } from '@/lib/errors'
 import { BadRequestError, NotFoundError } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 

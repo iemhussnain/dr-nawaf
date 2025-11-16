@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import dbConnect from '@/lib/dbConnect'
 import Order from '@/models/Order'
 import Product from '@/models/Product'
 import Patient from '@/models/Patient'
-import { asyncHandler } from '@/lib/errorHandler'
+import { asyncHandler } from '@/lib/errors'
 import { BadRequestError, UnauthorizedError, NotFoundError } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { asyncHandler } from '@/lib/errorHandler'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { asyncHandler } from '@/lib/errors'
 import { BadRequestError, UnauthorizedError } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 

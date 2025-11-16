@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import dbConnect from '@/lib/dbConnect'
 import Notification from '@/models/Notification'
-import { asyncHandler } from '@/lib/errorHandler'
-import { UnauthorizedError } from '@/lib/errors'
+import { asyncHandler } from '@/lib/errors'
+import { UnauthorizedError, BadRequestError } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/notifications - List notifications for current user

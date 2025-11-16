@@ -7,7 +7,7 @@ import Doctor from '@/models/Doctor'
 import Service from '@/models/Service'
 import Notification from '@/models/Notification'
 import { sendAppointmentReminder } from '@/utils/email'
-import { asyncHandler } from '@/lib/errorHandler'
+import { asyncHandler } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/cron/send-reminders - Send appointment reminders for appointments in next 24 hours

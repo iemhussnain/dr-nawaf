@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/dbConnect'
 import Newsletter from '@/models/Newsletter'
 import { sendNewsletter } from '@/utils/email'
-import { asyncHandler } from '@/lib/errorHandler'
+import { asyncHandler } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 
 // POST /api/cron/send-newsletter - Send newsletter to all active subscribers

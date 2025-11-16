@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/dbConnect'
 import { cleanupOldNotifications } from '@/utils/notifications'
-import { asyncHandler } from '@/lib/errorHandler'
+import { asyncHandler } from '@/lib/errors'
 import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/cron/cleanup-notifications - Clean up old read notifications
