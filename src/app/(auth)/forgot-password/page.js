@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/use-auth"
 import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -46,9 +45,9 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
         <Navbar />
-        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 py-12">
+        <div className="flex-1 flex items-center justify-center p-4">
           <Card className="w-full max-w-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader className="space-y-1">
               <div className="flex justify-center mb-4">
@@ -89,16 +88,15 @@ export default function ForgotPasswordPage() {
             </CardFooter>
           </Card>
         </div>
-        <Footer />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
 
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 py-12">
+      <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-gray-900 dark:text-white">
@@ -151,8 +149,6 @@ export default function ForgotPasswordPage() {
           </CardFooter>
         </Card>
       </div>
-
-      <Footer />
     </div>
   )
 }
