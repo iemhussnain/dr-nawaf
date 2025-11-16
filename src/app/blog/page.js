@@ -108,7 +108,7 @@ export default function BlogPage() {
         {/* Filters */}
         <Card className="mb-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardContent className="p-4">
-            <form onSubmit={handleSearch}>
+            <form onSubmit={handleSearch} noValidate>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Search */}
                 <div className="md:col-span-2 relative">

@@ -147,7 +147,7 @@ export function DoctorForm({ doctor = null, isEdit = false }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/doctors">
           <Button type="button" variant="outline" size="icon">

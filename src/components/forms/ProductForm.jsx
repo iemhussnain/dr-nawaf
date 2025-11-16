@@ -180,7 +180,7 @@ export function ProductForm({ product = null, isEdit = false }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="max-w-5xl mx-auto space-y-6">
       {/* Basic Information */}
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
