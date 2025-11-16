@@ -16,14 +16,29 @@ export async function POST(req) {
     // Validate input
     const validatedData = registerSchema.parse(body)
 
+    // Debug logging
+    console.log('🔍 Registration attempt for email:', validatedData.email)
+    console.log('🔍 Email after validation:', validatedData.email)
+
+    // Check total users in database
+    const totalUsers = await User.countDocuments()
+    console.log('📊 Total users in database:', totalUsers)
+
     // Check if user already exists
     const existingUser = await User.findOne({ email: validatedData.email })
+    console.log('🔍 Existing user found:', existingUser ? 'YES' : 'NO')
     if (existingUser) {
+      console.log('🔍 Existing user email:', existingUser.email)
+      console.log('🔍 Existing user ID:', existingUser._id)
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 400 }
       )
     }
+
+    // Check all users emails
+    const allUsers = await User.find({}, 'email')
+    console.log('📧 All emails in database:', allUsers.map(u => u.email))
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex')
