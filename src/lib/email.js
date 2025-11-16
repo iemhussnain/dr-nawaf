@@ -1,4 +1,5 @@
-import nodemailer from 'nodemailer'
+// Use require for nodemailer due to Next.js 16 + Turbopack compatibility
+const nodemailer = require('nodemailer')
 
 // Create reusable transporter
 const transporter = nodemailer.createTransporter({
