@@ -106,6 +106,29 @@ export class InternalServerError extends APIError {
 }
 
 /**
+ * 429 Too Many Requests
+ */
+export class TooManyRequestsError extends APIError {
+  constructor(message = 'Too many requests', metadata = {}) {
+    super(message, 429)
+    this.retryAfter = metadata.retryAfter || 60
+  }
+
+  toJSON() {
+    return {
+      success: false,
+      error: this.message,
+      statusCode: this.statusCode,
+      retryAfter: this.retryAfter,
+      ...(process.env.NODE_ENV === 'development' && {
+        stack: this.stack,
+        timestamp: this.timestamp,
+      }),
+    }
+  }
+}
+
+/**
  * Database Error
  */
 export class DatabaseError extends APIError {

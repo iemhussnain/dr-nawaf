@@ -7,6 +7,7 @@ export {
   NotFoundError,
   ConflictError,
   ValidationError,
+  TooManyRequestsError,
   InternalServerError,
   DatabaseError,
 } from './APIError'
