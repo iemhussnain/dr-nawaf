@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Service from '@/models/Service'
 import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
 import { UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors/APIError'

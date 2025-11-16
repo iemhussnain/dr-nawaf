@@ -1,4 +1,4 @@
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import { asyncHandler, successResponse, formatMongoDBError } from '@/lib/errors'
 import { BadRequestError } from '@/lib/errors/APIError'

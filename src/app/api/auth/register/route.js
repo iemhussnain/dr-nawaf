@@ -1,4 +1,4 @@
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import Patient from '@/models/Patient'
 import { registerSchema } from '@/lib/validations'

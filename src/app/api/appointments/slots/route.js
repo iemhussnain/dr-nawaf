@@ -1,4 +1,4 @@
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Doctor from '@/models/Doctor'
 import Appointment from '@/models/Appointment'
 import { asyncHandler, successResponse } from '@/lib/errors'

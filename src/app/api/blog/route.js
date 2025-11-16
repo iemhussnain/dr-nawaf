@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Blog from '@/models/Blog'
 import Doctor from '@/models/Doctor'
 import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
