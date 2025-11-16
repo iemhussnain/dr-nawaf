@@ -43,8 +43,21 @@ export default function LoginPage() {
 
       if (result.success) {
         toast.success("Login successful!")
-        router.push("/dashboard")
-        router.refresh()
+
+        // Wait for session to update, then redirect based on role
+        setTimeout(async () => {
+          const response = await fetch('/api/auth/session')
+          const sessionData = await response.json()
+
+          if (sessionData?.user?.role === 'admin') {
+            router.push("/admin/dashboard")
+          } else if (sessionData?.user?.role === 'doctor') {
+            router.push("/doctor/dashboard")
+          } else {
+            router.push("/my-appointments")
+          }
+          router.refresh()
+        }, 500)
       } else {
         setError(result.error || "Login failed")
         toast.error(result.error || "Login failed")
