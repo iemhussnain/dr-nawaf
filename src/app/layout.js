@@ -28,8 +28,8 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem={true}
+            defaultTheme="light"
+            enableSystem={false}
             storageKey="dr-nawaf-theme"
           >
             {children}

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Laptop } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -52,13 +52,6 @@ export function ThemeToggle() {
         >
           <Moon className="mr-2 h-4 w-4" />
           Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("system")}
-          className={theme === "system" ? "bg-accent" : ""}
-        >
-          <Laptop className="mr-2 h-4 w-4" />
-          System
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
