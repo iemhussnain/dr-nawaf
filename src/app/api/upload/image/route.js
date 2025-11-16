@@ -4,9 +4,10 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { asyncHandler, successResponse } from '@/lib/errors'
-import { UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/errors/APIError'
+import { UnauthorizedError, ForbiddenError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
 import { withRateLimit } from '@/middleware/rateLimiter'
+import { validateFileUpload, generateSafeFilename } from '@/middleware/fileValidation'
 
 // POST /api/upload/image - Upload image (Admin and Doctor only)
 const handler = asyncHandler(async (req) => {
@@ -23,23 +24,11 @@ const handler = asyncHandler(async (req) => {
   const formData = await req.formData()
   const file = formData.get('file')
 
-  if (!file) {
-    throw new BadRequestError('No file uploaded')
-  }
-
-  // Validate file type
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-  if (!allowedTypes.includes(file.type)) {
-    throw new BadRequestError(
-      'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed'
-    )
-  }
-
-  // Validate file size (max 5MB)
-  const maxSize = 5 * 1024 * 1024 // 5MB
-  if (file.size > maxSize) {
-    throw new BadRequestError('File size must be less than 5MB')
-  }
+  // Validate file upload using middleware
+  const { file: validatedFile, metadata } = validateFileUpload(file, {
+    category: 'images',
+    maxSize: 5 * 1024 * 1024, // 5MB
+  })
 
   // Create upload directory if it doesn't exist
   const uploadDir = join(process.cwd(), 'public', 'uploads', 'blog')
@@ -47,14 +36,11 @@ const handler = asyncHandler(async (req) => {
     await mkdir(uploadDir, { recursive: true })
   }
 
-  // Generate unique filename
-  const timestamp = Date.now()
-  const randomString = Math.random().toString(36).substring(2, 15)
-  const extension = file.name.split('.').pop()
-  const filename = `${timestamp}-${randomString}.${extension}`
+  // Generate safe filename
+  const filename = generateSafeFilename(validatedFile.name)
 
   // Save file
-  const bytes = await file.arrayBuffer()
+  const bytes = await validatedFile.arrayBuffer()
   const buffer = Buffer.from(bytes)
   const filepath = join(uploadDir, filename)
 
@@ -64,9 +50,8 @@ const handler = asyncHandler(async (req) => {
   const url = `/uploads/blog/${filename}`
 
   logger.info('Image uploaded', {
+    ...metadata,
     filename,
-    size: file.size,
-    type: file.type,
     userId: session.user.id,
   })
 
