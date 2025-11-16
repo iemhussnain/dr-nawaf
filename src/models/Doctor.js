@@ -1,5 +1,33 @@
 import mongoose from 'mongoose'
 
+const availabilitySchema = new mongoose.Schema({
+  day: {
+    type: String,
+    enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+    required: true,
+  },
+  isAvailable: {
+    type: Boolean,
+    default: true,
+  },
+  slots: [
+    {
+      startTime: {
+        type: String, // Format: "09:00"
+        required: true,
+      },
+      endTime: {
+        type: String, // Format: "17:00"
+        required: true,
+      },
+      isAvailable: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+})
+
 const doctorSchema = new mongoose.Schema(
   {
     userId: {
@@ -21,6 +49,27 @@ const doctorSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Specialty is required'],
     },
+    specialization: {
+      type: String,
+      enum: [
+        'General Practitioner',
+        'Cardiologist',
+        'Dermatologist',
+        'Pediatrician',
+        'Orthopedic',
+        'Neurologist',
+        'Psychiatrist',
+        'Gynecologist',
+        'Ophthalmologist',
+        'ENT Specialist',
+        'Dentist',
+        'Physiotherapist',
+        'Radiologist',
+        'Surgeon',
+        'Other',
+      ],
+      default: 'General Practitioner',
+    },
     qualifications: [
       {
         degree: String,
@@ -28,9 +77,15 @@ const doctorSchema = new mongoose.Schema(
         year: Number,
       },
     ],
+    licenseNumber: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows null values while maintaining uniqueness
+    },
     experience: {
       type: Number,
       default: 0,
+      min: 0,
     },
     bio: {
       type: String,
@@ -43,6 +98,8 @@ const doctorSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      lowercase: true,
+      trim: true,
     },
     phone: {
       type: String,
@@ -53,22 +110,22 @@ const doctorSchema = new mongoose.Schema(
       required: [true, 'Consultation fee is required'],
       min: [0, 'Fee cannot be negative'],
     },
-    availability: [
+    languages: [
       {
-        day: {
-          type: String,
-          enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+        type: String,
+      },
+    ],
+    availability: [availabilitySchema],
+    holidays: [
+      {
+        date: {
+          type: Date,
+          required: true,
         },
-        slots: [
-          {
-            startTime: String,
-            endTime: String,
-            isAvailable: {
-              type: Boolean,
-              default: true,
-            },
-          },
-        ],
+        reason: {
+          type: String,
+          default: 'Holiday',
+        },
       },
     ],
     services: [
@@ -91,6 +148,11 @@ const doctorSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'on-leave'],
+      default: 'active',
+    },
   },
   {
     timestamps: true,
@@ -105,5 +167,10 @@ doctorSchema.virtual('fullName').get(function () {
 // Ensure virtuals are included in JSON
 doctorSchema.set('toJSON', { virtuals: true })
 doctorSchema.set('toObject', { virtuals: true })
+
+// Indexes for faster queries
+doctorSchema.index({ specialization: 1, status: 1 })
+doctorSchema.index({ userId: 1 })
+doctorSchema.index({ isActive: 1 })
 
 export default mongoose.models.Doctor || mongoose.model('Doctor', doctorSchema)
