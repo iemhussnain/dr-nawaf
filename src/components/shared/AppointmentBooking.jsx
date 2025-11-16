@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/shared/Calendar"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 import {
   Clock,
   Calendar as CalendarIcon,
@@ -62,19 +63,16 @@ export function AppointmentBooking({ doctor }) {
     setLoadingSlots(true)
     try {
       const dateStr = selectedDate.toISOString().split("T")[0]
-      const response = await fetch(
+      const response = await axiosInstance.get(
         `/api/appointments/slots?doctorId=${doctor._id}&date=${dateStr}`
       )
-      const data = await response.json()
 
-      if (data.success) {
-        setAvailableSlots(data.data.slots || [])
+      if (response.data.success) {
+        setAvailableSlots(response.data.data.slots || [])
       } else {
-        toast.error(data.error || "Failed to fetch available slots")
         setAvailableSlots([])
       }
     } catch (error) {
-      toast.error("Failed to fetch available slots")
       setAvailableSlots([])
     } finally {
       setLoadingSlots(false)
@@ -155,15 +153,9 @@ export function AppointmentBooking({ doctor }) {
         }
       }
 
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData),
-      })
+      const response = await axiosInstance.post("/api/appointments", bookingData)
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success("Appointment booked successfully!")
         setCurrentStep(STEPS.PAYMENT)
 
@@ -175,11 +167,9 @@ export function AppointmentBooking({ doctor }) {
             router.push("/")
           }
         }, 2000)
-      } else {
-        toast.error(data.error || "Failed to book appointment")
       }
     } catch (error) {
-      toast.error("An error occurred while booking")
+      // Error already handled by axios interceptor
     } finally {
       setLoading(false)
     }
