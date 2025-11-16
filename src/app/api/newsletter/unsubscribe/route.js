@@ -3,9 +3,10 @@ import dbConnect from '@/lib/dbConnect'
 import Newsletter from '@/models/Newsletter'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError, NotFoundError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // POST /api/newsletter/unsubscribe - Unsubscribe from newsletter
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const body = await req.json()
@@ -34,3 +35,5 @@ export const POST = asyncHandler(async (req) => {
     message: 'Successfully unsubscribed from newsletter',
   })
 })
+
+export const POST = withRateLimit(postHandler, 'public')

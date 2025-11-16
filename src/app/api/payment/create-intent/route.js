@@ -3,12 +3,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError, UnauthorizedError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // POST /api/payment/create-intent - Create payment intent
 // Note: Stripe is not in package.json dependencies
 // This is a placeholder for future Stripe integration
 // To use Stripe, install: npm install stripe
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   const session = await getServerSession(authOptions)
   if (!session) {
     throw new UnauthorizedError('You must be logged in')
@@ -53,3 +54,5 @@ export const POST = asyncHandler(async (req) => {
     },
   })
 })
+
+export const POST = withRateLimit(postHandler, 'api')

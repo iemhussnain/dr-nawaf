@@ -3,10 +3,11 @@ import dbConnect from '@/lib/dbConnect'
 import Newsletter from '@/models/Newsletter'
 import { sendNewsletter } from '@/utils/email'
 import { asyncHandler } from '@/lib/errorHandler'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // POST /api/cron/send-newsletter - Send newsletter to all active subscribers
 // This should be called by a cron job or manually by admin
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   // Verify cron secret to prevent unauthorized access
@@ -79,7 +80,7 @@ export const POST = asyncHandler(async (req) => {
 })
 
 // GET /api/cron/send-newsletter - Get newsletter sending status (for testing)
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const activeSubscribers = await Newsletter.countDocuments({ isActive: true })
@@ -94,3 +95,6 @@ export const GET = asyncHandler(async (req) => {
     },
   })
 })
+
+export const GET = withRateLimit(getHandler, 'public')
+export const POST = withRateLimit(postHandler, 'public')

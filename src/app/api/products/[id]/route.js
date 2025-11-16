@@ -5,9 +5,10 @@ import dbConnect from '@/lib/dbConnect'
 import Product from '@/models/Product'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/products/[id] - Get single product
-export const GET = asyncHandler(async (req, { params }) => {
+const getHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const { id } = params
@@ -33,7 +34,7 @@ export const GET = asyncHandler(async (req, { params }) => {
 })
 
 // PUT /api/products/[id] - Update product (admin only)
-export const PUT = asyncHandler(async (req, { params }) => {
+const putHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -89,7 +90,7 @@ export const PUT = asyncHandler(async (req, { params }) => {
 })
 
 // DELETE /api/products/[id] - Delete product (admin only)
-export const DELETE = asyncHandler(async (req, { params }) => {
+const deleteHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -117,3 +118,7 @@ export const DELETE = asyncHandler(async (req, { params }) => {
     message: 'Product deleted successfully',
   })
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const PUT = withRateLimit(putHandler, 'api')
+export const DELETE = withRateLimit(deleteHandler, 'api')

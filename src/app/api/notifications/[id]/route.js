@@ -5,9 +5,10 @@ import dbConnect from '@/lib/dbConnect'
 import Notification from '@/models/Notification'
 import { asyncHandler } from '@/lib/errorHandler'
 import { UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // PUT /api/notifications/[id] - Mark notification as read
-export const PUT = asyncHandler(async (req, { params }) => {
+const putHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -40,7 +41,7 @@ export const PUT = asyncHandler(async (req, { params }) => {
 })
 
 // DELETE /api/notifications/[id] - Delete notification
-export const DELETE = asyncHandler(async (req, { params }) => {
+const deleteHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -68,3 +69,6 @@ export const DELETE = asyncHandler(async (req, { params }) => {
     message: 'Notification deleted successfully',
   })
 })
+
+export const PUT = withRateLimit(putHandler, 'api')
+export const DELETE = withRateLimit(deleteHandler, 'api')

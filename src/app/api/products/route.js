@@ -5,9 +5,10 @@ import dbConnect from '@/lib/dbConnect'
 import Product from '@/models/Product'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError, UnauthorizedError, ForbiddenError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/products - List products
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { searchParams } = new URL(req.url)
@@ -90,7 +91,7 @@ export const GET = asyncHandler(async (req) => {
 })
 
 // POST /api/products - Create product (admin only)
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -141,3 +142,6 @@ export const POST = asyncHandler(async (req) => {
     { status: 201 }
   )
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const POST = withRateLimit(postHandler, 'api')

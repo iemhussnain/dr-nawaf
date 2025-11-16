@@ -5,9 +5,10 @@ import dbConnect from '@/lib/dbConnect'
 import Order from '@/models/Order'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // PUT /api/orders/[id]/status - Update order status (admin only)
-export const PUT = asyncHandler(async (req, { params }) => {
+const putHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -60,3 +61,5 @@ export const PUT = asyncHandler(async (req, { params }) => {
     message: 'Order status updated successfully',
   })
 })
+
+export const PUT = withRateLimit(putHandler, 'api')

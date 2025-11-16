@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/dbConnect'
 import { cleanupOldNotifications } from '@/utils/notifications'
 import { asyncHandler } from '@/lib/errorHandler'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/cron/cleanup-notifications - Clean up old read notifications
 // This should be called by a cron job weekly
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   // Verify cron secret to prevent unauthorized access
@@ -25,3 +26,5 @@ export const GET = asyncHandler(async (req) => {
     message: `Cleaned up ${result.deletedCount || 0} old notifications`,
   })
 })
+
+export const GET = withRateLimit(getHandler, 'public')

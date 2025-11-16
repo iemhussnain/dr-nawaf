@@ -6,6 +6,7 @@ import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
 import { UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
 import { z } from 'zod'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // Validation schema for updating service
 const updateServiceSchema = z.object({
@@ -19,7 +20,7 @@ const updateServiceSchema = z.object({
 })
 
 // GET /api/services/[id] - Get single service (public for active, admin for all)
-export const GET = asyncHandler(async (req, { params }) => {
+const getHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const { id } = params
@@ -43,7 +44,7 @@ export const GET = asyncHandler(async (req, { params }) => {
 })
 
 // PUT /api/services/[id] - Update service (Admin only)
-export const PUT = asyncHandler(async (req, { params }) => {
+const putHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -85,7 +86,7 @@ export const PUT = asyncHandler(async (req, { params }) => {
 })
 
 // DELETE /api/services/[id] - Delete service (Admin only)
-export const DELETE = asyncHandler(async (req, { params }) => {
+const deleteHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -114,3 +115,7 @@ export const DELETE = asyncHandler(async (req, { params }) => {
 
   return successResponse(null, 'Service deleted successfully')
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const PUT = withRateLimit(putHandler, 'api')
+export const DELETE = withRateLimit(deleteHandler, 'api')

@@ -5,9 +5,10 @@ import dbConnect from '@/lib/dbConnect'
 import Notification from '@/models/Notification'
 import { asyncHandler } from '@/lib/errorHandler'
 import { UnauthorizedError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // PUT /api/notifications/mark-all-read - Mark all notifications as read
-export const PUT = asyncHandler(async (req) => {
+const putHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -29,3 +30,5 @@ export const PUT = asyncHandler(async (req) => {
     message: 'All notifications marked as read',
   })
 })
+
+export const PUT = withRateLimit(putHandler, 'api')

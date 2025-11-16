@@ -6,9 +6,10 @@ import Order from '@/models/Order'
 import Patient from '@/models/Patient'
 import { asyncHandler } from '@/lib/errorHandler'
 import { UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/orders/[id] - Get single order
-export const GET = asyncHandler(async (req, { params }) => {
+const getHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -41,3 +42,5 @@ export const GET = asyncHandler(async (req, { params }) => {
     data: order,
   })
 })
+
+export const GET = withRateLimit(getHandler, 'api')

@@ -7,6 +7,7 @@ import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
 import { UnauthorizedError, ForbiddenError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
 import { z } from 'zod'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // Helper function to generate slug
 function generateSlug(title) {
@@ -28,7 +29,7 @@ const blogSchema = z.object({
 })
 
 // GET /api/blog - List all blog posts (published for public, all for admin)
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { searchParams } = new URL(req.url)
@@ -110,7 +111,7 @@ export const GET = asyncHandler(async (req) => {
 })
 
 // POST /api/blog - Create new blog post (Admin only)
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -176,3 +177,6 @@ export const POST = asyncHandler(async (req) => {
 
   return successResponse(post, 'Blog post created successfully', 201)
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const POST = withRateLimit(postHandler, 'api')

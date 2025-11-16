@@ -7,9 +7,10 @@ import Product from '@/models/Product'
 import Patient from '@/models/Patient'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError, UnauthorizedError, NotFoundError } from '@/lib/errors'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/orders - List orders
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -93,7 +94,7 @@ export const GET = asyncHandler(async (req) => {
 })
 
 // POST /api/orders - Create order
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const session = await getServerSession(authOptions)
@@ -198,3 +199,6 @@ export const POST = asyncHandler(async (req) => {
     { status: 201 }
   )
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const POST = withRateLimit(postHandler, 'api')

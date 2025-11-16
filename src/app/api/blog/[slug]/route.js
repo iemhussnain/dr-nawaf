@@ -7,6 +7,7 @@ import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
 import { UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
 import { z } from 'zod'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // Helper function to generate slug
 function generateSlug(title) {
@@ -28,7 +29,7 @@ const updateBlogSchema = z.object({
 })
 
 // GET /api/blog/[slug] - Get single blog post (published for public, all for admin/author)
-export const GET = asyncHandler(async (req, { params }) => {
+const getHandler = asyncHandler(async (req, { params }) => {
   await dbConnect()
 
   const { slug } = params
@@ -62,7 +63,7 @@ export const GET = asyncHandler(async (req, { params }) => {
 })
 
 // PUT /api/blog/[slug] - Update blog post (Admin or Author only)
-export const PUT = asyncHandler(async (req, { params }) => {
+const putHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -129,7 +130,7 @@ export const PUT = asyncHandler(async (req, { params }) => {
 })
 
 // DELETE /api/blog/[slug] - Delete blog post (Admin or Author only)
-export const DELETE = asyncHandler(async (req, { params }) => {
+const deleteHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -166,3 +167,7 @@ export const DELETE = asyncHandler(async (req, { params }) => {
 
   return successResponse(null, 'Blog post deleted successfully')
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const PUT = withRateLimit(putHandler, 'api')
+export const DELETE = withRateLimit(deleteHandler, 'api')

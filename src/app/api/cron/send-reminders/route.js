@@ -8,10 +8,11 @@ import Service from '@/models/Service'
 import Notification from '@/models/Notification'
 import { sendAppointmentReminder } from '@/utils/email'
 import { asyncHandler } from '@/lib/errorHandler'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // GET /api/cron/send-reminders - Send appointment reminders for appointments in next 24 hours
 // This should be called by a cron job (e.g., Vercel Cron, external cron service)
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   // Verify cron secret to prevent unauthorized access
@@ -107,3 +108,5 @@ export const GET = asyncHandler(async (req) => {
     message: `Sent ${results.sent} reminders, ${results.failed} failed`,
   })
 })
+
+export const GET = withRateLimit(getHandler, 'public')

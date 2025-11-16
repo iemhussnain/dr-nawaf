@@ -4,9 +4,10 @@ import Newsletter from '@/models/Newsletter'
 import { asyncHandler } from '@/lib/errorHandler'
 import { BadRequestError } from '@/lib/errors'
 import { sendWelcomeEmail } from '@/utils/email'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // POST /api/newsletter - Subscribe to newsletter
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const body = await req.json()
@@ -62,7 +63,7 @@ export const POST = asyncHandler(async (req) => {
 })
 
 // GET /api/newsletter - Get all newsletter subscribers (admin only)
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { searchParams } = new URL(req.url)
@@ -83,3 +84,6 @@ export const GET = asyncHandler(async (req) => {
     },
   })
 })
+
+export const GET = withRateLimit(getHandler, 'public')
+export const POST = withRateLimit(postHandler, 'public')
