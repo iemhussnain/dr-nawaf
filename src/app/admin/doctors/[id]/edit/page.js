@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { DoctorForm } from "@/components/forms/DoctorForm"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export default function EditDoctorPage() {
   const params = useParams()
@@ -18,18 +19,16 @@ export default function EditDoctorPage() {
 
   const fetchDoctor = async () => {
     try {
-      const response = await fetch(`/api/doctors/${params.id}`)
-      const data = await response.json()
+      const response = await axiosInstance.get(`/api/doctors/${params.id}`)
 
-      if (data.success) {
-        setDoctor(data.data)
+      if (response.data.success) {
+        setDoctor(response.data.data)
       } else {
-        toast.error(data.error || "Failed to fetch doctor")
         router.push("/admin/doctors")
       }
     } catch (error) {
+      // Error already handled by axios interceptor
       console.error("Fetch doctor error:", error)
-      toast.error("Failed to fetch doctor")
       router.push("/admin/doctors")
     } finally {
       setLoading(false)

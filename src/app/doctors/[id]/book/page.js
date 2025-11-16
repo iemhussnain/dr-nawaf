@@ -6,6 +6,7 @@ import { AppointmentBooking } from "@/components/shared/AppointmentBooking"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export default function BookAppointmentPage() {
   const params = useParams()
@@ -20,17 +21,15 @@ export default function BookAppointmentPage() {
   const fetchDoctor = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/doctors/${params.id}`)
-      const data = await response.json()
+      const response = await axiosInstance.get(`/api/doctors/${params.id}`)
 
-      if (data.success) {
-        setDoctor(data.data)
+      if (response.data.success) {
+        setDoctor(response.data.data)
       } else {
-        toast.error(data.error || "Failed to fetch doctor details")
         router.push("/doctors")
       }
     } catch (error) {
-      toast.error("Failed to fetch doctor details")
+      // Error already handled by axios interceptor
       router.push("/doctors")
     } finally {
       setLoading(false)

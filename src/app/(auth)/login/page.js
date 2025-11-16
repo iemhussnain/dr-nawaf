@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,17 +47,23 @@ export default function LoginPage() {
 
         // Wait for session to update, then redirect based on role
         setTimeout(async () => {
-          const response = await fetch('/api/auth/session')
-          const sessionData = await response.json()
+          try {
+            const response = await axiosInstance.get('/api/auth/session')
+            const sessionData = response.data
 
-          if (sessionData?.user?.role === 'admin') {
-            router.push("/admin/dashboard")
-          } else if (sessionData?.user?.role === 'doctor') {
-            router.push("/doctor/dashboard")
-          } else {
+            if (sessionData?.user?.role === 'admin') {
+              router.push("/admin/dashboard")
+            } else if (sessionData?.user?.role === 'doctor') {
+              router.push("/doctor/dashboard")
+            } else {
+              router.push("/my-appointments")
+            }
+            router.refresh()
+          } catch (error) {
+            // If session fetch fails, just redirect to appointments
             router.push("/my-appointments")
+            router.refresh()
           }
-          router.refresh()
         }, 500)
       } else {
         setError(result.error || "Login failed")

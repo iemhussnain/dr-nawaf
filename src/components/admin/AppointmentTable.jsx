@@ -37,6 +37,7 @@ import {
   Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export function AppointmentTable({
   appointments,
@@ -73,23 +74,18 @@ export function AppointmentTable({
   const handleUpdate = async () => {
     setUpdating(true)
     try {
-      const response = await fetch(`/api/appointments/${selectedAppointment._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
-      })
+      const response = await axiosInstance.put(
+        `/api/appointments/${selectedAppointment._id}`,
+        updateData
+      )
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success("Appointment updated successfully")
         setShowUpdateDialog(false)
         onUpdate()
-      } else {
-        toast.error(data.error || "Failed to update appointment")
       }
     } catch (error) {
-      toast.error("An error occurred while updating")
+      // Error already handled by axios interceptor
     } finally {
       setUpdating(false)
     }
@@ -99,25 +95,17 @@ export function AppointmentTable({
     if (!confirm("Are you sure you want to cancel this appointment?")) return
 
     try {
-      const response = await fetch(`/api/appointments/${appointment._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: "cancelled",
-          cancellationReason: "Cancelled by administrator",
-        }),
+      const response = await axiosInstance.put(`/api/appointments/${appointment._id}`, {
+        status: "cancelled",
+        cancellationReason: "Cancelled by administrator",
       })
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success("Appointment cancelled successfully")
         onUpdate()
-      } else {
-        toast.error(data.error || "Failed to cancel appointment")
       }
     } catch (error) {
-      toast.error("An error occurred")
+      // Error already handled by axios interceptor
     }
   }
 

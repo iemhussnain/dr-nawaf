@@ -17,6 +17,7 @@ import {
 import { Loader2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
+import axiosInstance from "@/lib/axios"
 
 export function DoctorForm({ doctor = null, isEdit = false }) {
   const router = useRouter()
@@ -119,28 +120,19 @@ export function DoctorForm({ doctor = null, isEdit = false }) {
       }
 
       const url = isEdit ? `/api/doctors/${doctor._id}` : "/api/doctors"
-      const method = isEdit ? "PUT" : "POST"
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submitData),
-      })
+      const response = isEdit
+        ? await axiosInstance.put(url, submitData)
+        : await axiosInstance.post(url, submitData)
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success(isEdit ? "Doctor updated successfully" : "Doctor created successfully")
         router.push("/admin/doctors")
         router.refresh()
-      } else {
-        toast.error(data.error || "Failed to save doctor")
       }
     } catch (error) {
+      // Error already handled by axios interceptor
       console.error("Submit error:", error)
-      toast.error("An error occurred while saving doctor")
     } finally {
       setLoading(false)
     }

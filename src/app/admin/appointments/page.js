@@ -14,6 +14,7 @@ import {
 import { AppointmentTable } from "@/components/admin/AppointmentTable"
 import { Calendar, Clock, CheckCircle, XCircle, Search, Filter } from "lucide-react"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export default function AdminAppointmentsPage() {
   const [appointments, setAppointments] = useState([])
@@ -62,17 +63,14 @@ export default function AdminAppointmentsPage() {
         }
       }
 
-      const response = await fetch(`/api/appointments?${params}`)
-      const data = await response.json()
+      const response = await axiosInstance.get(`/api/appointments?${params}`)
 
-      if (data.success) {
-        setAppointments(data.data.appointments || [])
-        setPagination(data.data.pagination || pagination)
-      } else {
-        toast.error(data.error || "Failed to fetch appointments")
+      if (response.data.success) {
+        setAppointments(response.data.data.appointments || [])
+        setPagination(response.data.data.pagination || pagination)
       }
     } catch (error) {
-      toast.error("Failed to fetch appointments")
+      // Error already handled by axios interceptor
     } finally {
       setLoading(false)
     }

@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export default function DoctorsPage() {
   const router = useRouter()
@@ -44,18 +45,15 @@ export default function DoctorsPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter)
       if (specializationFilter !== 'all') params.append('specialization', specializationFilter)
 
-      const response = await fetch(`/api/doctors?${params}`)
-      const data = await response.json()
+      const response = await axiosInstance.get(`/api/doctors?${params}`)
 
-      if (data.success) {
-        setDoctors(data.data)
-        setPagination(data.pagination)
-      } else {
-        toast.error(data.error || 'Failed to fetch doctors')
+      if (response.data.success) {
+        setDoctors(response.data.data)
+        setPagination(response.data.pagination)
       }
     } catch (error) {
+      // Error already handled by axios interceptor
       console.error('Fetch doctors error:', error)
-      toast.error('Failed to fetch doctors')
     } finally {
       setLoading(false)
     }
@@ -85,21 +83,15 @@ export default function DoctorsPage() {
     }
 
     try {
-      const response = await fetch(`/api/doctors/${id}`, {
-        method: 'DELETE',
-      })
+      const response = await axiosInstance.delete(`/api/doctors/${id}`)
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success('Doctor deactivated successfully')
         fetchDoctors()
-      } else {
-        toast.error(data.error || 'Failed to deactivate doctor')
       }
     } catch (error) {
+      // Error already handled by axios interceptor
       console.error('Delete doctor error:', error)
-      toast.error('Failed to deactivate doctor')
     }
   }
 
