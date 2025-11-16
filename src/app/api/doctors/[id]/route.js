@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Doctor from '@/models/Doctor'
 import User from '@/models/User'
 import { withRateLimit } from '@/middleware/rateLimiter'
