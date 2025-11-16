@@ -7,14 +7,21 @@ import { sendVerificationEmail } from '@/lib/email'
 import crypto from 'crypto'
 
 export async function POST(req) {
+  console.log('🚀 ========== REGISTRATION ENDPOINT HIT ==========')
   try {
+    console.log('📡 Connecting to database...')
     await dbConnect()
+    console.log('✅ Database connected')
 
     // Parse request body
+    console.log('📦 Parsing request body...')
     const body = await req.json()
+    console.log('📦 Request body:', body)
 
     // Validate input
+    console.log('✔️  Validating input...')
     const validatedData = registerSchema.parse(body)
+    console.log('✅ Validation passed')
 
     // Debug logging
     console.log('🔍 Registration attempt for email:', validatedData.email)
@@ -73,12 +80,25 @@ export async function POST(req) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('Registration error:', error)
+    console.error('❌ ========== REGISTRATION ERROR ==========')
+    console.error('❌ Error name:', error.name)
+    console.error('❌ Error message:', error.message)
+    console.error('❌ Full error:', error)
 
     // Handle Zod validation errors
     if (error.name === 'ZodError') {
+      console.error('❌ Zod validation errors:', error.errors)
       return NextResponse.json(
         { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      )
+    }
+
+    // Handle MongoDB duplicate key error
+    if (error.code === 11000) {
+      console.error('❌ Duplicate key error. Field:', Object.keys(error.keyPattern))
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
         { status: 400 }
       )
     }
