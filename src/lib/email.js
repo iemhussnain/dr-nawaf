@@ -1,21 +1,25 @@
-// Use require for nodemailer due to Next.js 16 + Turbopack compatibility
-const nodemailer = require('nodemailer')
-
 // Lazy-loaded transporter (only initialize when needed)
 let transporter = null
+let nodemailerModule = null
 
 /**
  * Get or create email transporter
  */
-function getTransporter() {
+async function getTransporter() {
   // Check if SMTP is configured
   if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER) {
     return null
   }
 
+  // Load nodemailer dynamically if not already loaded
+  if (!nodemailerModule) {
+    nodemailerModule = await import('nodemailer')
+  }
+
   // Create transporter if not exists
   if (!transporter) {
-    transporter = nodemailer.createTransporter({
+    const nodemailer = nodemailerModule.default || nodemailerModule
+    transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT || '587'),
       secure: process.env.EMAIL_SECURE === 'true',
@@ -33,7 +37,7 @@ function getTransporter() {
  * Send email
  */
 export async function sendEmail({ to, subject, html, text }) {
-  const emailTransporter = getTransporter()
+  const emailTransporter = await getTransporter()
 
   // If SMTP not configured, just log and return success (for development)
   if (!emailTransporter) {
