@@ -5,8 +5,9 @@ import crypto from 'crypto'
 import { asyncHandler, successResponse, formatMongoDBError } from '@/lib/errors'
 import { BadRequestError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
-export const POST = asyncHandler(async (req) => {
+const handler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { email } = await req.json()
@@ -50,3 +51,5 @@ export const POST = asyncHandler(async (req) => {
     'If an account exists with this email, a password reset link has been sent.'
   )
 })
+
+export const POST = withRateLimit(handler, 'passwordReset')

@@ -4,6 +4,7 @@ import Appointment from '@/models/Appointment'
 import { asyncHandler, successResponse } from '@/lib/errors'
 import { BadRequestError, NotFoundError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // Helper function to generate time slots
 function generateTimeSlots(startTime, endTime, duration = 30) {
@@ -53,7 +54,7 @@ function generateTimeSlots(startTime, endTime, duration = 30) {
 }
 
 // GET /api/appointments/slots?doctorId=xxx&date=YYYY-MM-DD
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { searchParams } = new URL(req.url)
@@ -208,3 +209,5 @@ export const GET = asyncHandler(async (req) => {
     'Available slots fetched successfully'
   )
 })
+
+export const GET = withRateLimit(getHandler, 'api')

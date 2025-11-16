@@ -7,8 +7,9 @@ import crypto from 'crypto'
 import { asyncHandler, successResponse, formatZodError, formatMongoDBError } from '@/lib/errors'
 import { ConflictError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
-export const POST = asyncHandler(async (req) => {
+const handler = asyncHandler(async (req) => {
   logger.info('Registration endpoint hit')
 
   await dbConnect()
@@ -74,3 +75,5 @@ export const POST = asyncHandler(async (req) => {
     201
   )
 })
+
+export const POST = withRateLimit(handler, 'auth')

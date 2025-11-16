@@ -3,8 +3,9 @@ import User from '@/models/User'
 import { asyncHandler, successResponse, formatMongoDBError } from '@/lib/errors'
 import { BadRequestError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
-export const POST = asyncHandler(async (req) => {
+const handler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { token } = await req.json()
@@ -42,3 +43,5 @@ export const POST = asyncHandler(async (req) => {
     'Email verified successfully! You can now login.'
   )
 })
+
+export const POST = withRateLimit(handler, 'auth')

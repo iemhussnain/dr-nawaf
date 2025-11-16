@@ -6,9 +6,10 @@ import { existsSync } from 'fs'
 import { asyncHandler, successResponse } from '@/lib/errors'
 import { UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // POST /api/upload/image - Upload image (Admin and Doctor only)
-export const POST = asyncHandler(async (req) => {
+const handler = asyncHandler(async (req) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -80,3 +81,5 @@ export const POST = asyncHandler(async (req) => {
     201
   )
 })
+
+export const POST = withRateLimit(handler, 'upload')

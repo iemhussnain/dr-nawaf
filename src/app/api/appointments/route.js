@@ -8,6 +8,7 @@ import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
 import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
 import { z } from 'zod'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // Validation schema for creating appointment
 const createAppointmentSchema = z.object({
@@ -32,7 +33,7 @@ const createAppointmentSchema = z.object({
 })
 
 // GET /api/appointments - List appointments with filters
-export const GET = asyncHandler(async (req) => {
+const getHandler = asyncHandler(async (req) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -117,7 +118,7 @@ export const GET = asyncHandler(async (req) => {
 })
 
 // POST /api/appointments - Create new appointment
-export const POST = asyncHandler(async (req) => {
+const postHandler = asyncHandler(async (req) => {
   await dbConnect()
 
   const body = await req.json()
@@ -216,3 +217,6 @@ export const POST = asyncHandler(async (req) => {
     201
   )
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const POST = withRateLimit(postHandler, 'api')

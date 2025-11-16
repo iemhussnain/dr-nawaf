@@ -8,6 +8,7 @@ import { asyncHandler, successResponse, validateRequest } from '@/lib/errors'
 import { UnauthorizedError, NotFoundError, ForbiddenError, BadRequestError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
 import { z } from 'zod'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 // Validation schema for updating appointment
 const updateAppointmentSchema = z.object({
@@ -23,7 +24,7 @@ const updateAppointmentSchema = z.object({
 })
 
 // GET /api/appointments/[id] - Get single appointment
-export const GET = asyncHandler(async (req, { params }) => {
+const getHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -67,7 +68,7 @@ export const GET = asyncHandler(async (req, { params }) => {
 })
 
 // PUT /api/appointments/[id] - Update appointment
-export const PUT = asyncHandler(async (req, { params }) => {
+const putHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -177,7 +178,7 @@ export const PUT = asyncHandler(async (req, { params }) => {
 })
 
 // DELETE /api/appointments/[id] - Delete appointment (Admin only)
-export const DELETE = asyncHandler(async (req, { params }) => {
+const deleteHandler = asyncHandler(async (req, { params }) => {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -209,3 +210,7 @@ export const DELETE = asyncHandler(async (req, { params }) => {
 
   return successResponse(null, 'Appointment deleted successfully')
 })
+
+export const GET = withRateLimit(getHandler, 'api')
+export const PUT = withRateLimit(putHandler, 'api')
+export const DELETE = withRateLimit(deleteHandler, 'api')

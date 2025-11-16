@@ -3,8 +3,9 @@ import User from '@/models/User'
 import { asyncHandler, successResponse, formatMongoDBError } from '@/lib/errors'
 import { BadRequestError } from '@/lib/errors/APIError'
 import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
-export const POST = asyncHandler(async (req) => {
+const handler = asyncHandler(async (req) => {
   await dbConnect()
 
   const { token, password } = await req.json()
@@ -45,3 +46,5 @@ export const POST = asyncHandler(async (req) => {
     'Password reset successful! You can now login with your new password.'
   )
 })
+
+export const POST = withRateLimit(handler, 'passwordReset')
