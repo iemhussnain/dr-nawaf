@@ -82,7 +82,8 @@ export default function AdminProductsPage() {
       if (response.data.success) {
         setProducts(response.data.data.products)
         setPagination(response.data.data.pagination)
-        setCategories(response.data.data.categories || [])
+        // Filter out empty strings from categories
+        setCategories((response.data.data.categories || []).filter(cat => cat && cat.trim()))
 
         // Calculate stats
         const allProducts = response.data.data.products

@@ -61,8 +61,9 @@ export default function BlogPage() {
 
       if (response.data.success) {
         setPosts(response.data.data.posts || [])
-        setCategories(response.data.data.categories || [])
-        setTags(response.data.data.tags || [])
+        // Filter out empty strings from categories and tags
+        setCategories((response.data.data.categories || []).filter(cat => cat && cat.trim()))
+        setTags((response.data.data.tags || []).filter(tag => tag && tag.trim()))
         setPagination(response.data.data.pagination || pagination)
       }
     } catch (error) {

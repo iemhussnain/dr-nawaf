@@ -83,7 +83,8 @@ export default function AdminBlogPage() {
 
       if (response.data.success) {
         setPosts(response.data.data.posts || [])
-        setCategories(response.data.data.categories || [])
+        // Filter out empty strings from categories
+        setCategories((response.data.data.categories || []).filter(cat => cat && cat.trim()))
         setPagination(response.data.data.pagination || pagination)
       }
     } catch (error) {

@@ -56,8 +56,8 @@ export default function DoctorsPage() {
       if (response.data.success) {
         setDoctors(response.data.data || [])
 
-        // Extract unique specializations
-        const specs = [...new Set((response.data.data || []).map(d => d.specialization))]
+        // Extract unique specializations and filter out empty values
+        const specs = [...new Set((response.data.data || []).map(d => d.specialization).filter(s => s && s.trim()))]
         setSpecializations(specs)
 
         setPagination(response.data.pagination || pagination)
