@@ -42,7 +42,7 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("all") // all, unread, read
-  const [typeFilter, setTypeFilter] = useState("")
+  const [typeFilter, setTypeFilter] = useState("all")
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -65,7 +65,7 @@ export default function NotificationsPage() {
 
       if (filter === "unread") params.append("isRead", "false")
       if (filter === "read") params.append("isRead", "true")
-      if (typeFilter) params.append("type", typeFilter)
+      if (typeFilter && typeFilter !== "all") params.append("type", typeFilter)
 
       const response = await axiosInstance.get(`/api/notifications?${params}`)
 
@@ -174,7 +174,7 @@ export default function NotificationsPage() {
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="appointment">Appointments</SelectItem>
                 <SelectItem value="order">Orders</SelectItem>
                 <SelectItem value="reminder">Reminders</SelectItem>

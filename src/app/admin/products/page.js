@@ -54,9 +54,9 @@ export default function AdminProductsPage() {
   })
   const [filters, setFilters] = useState({
     search: "",
-    category: "",
-    isActive: "",
-    inStock: "",
+    category: "all",
+    isActive: "all",
+    inStock: "all",
   })
   const [categories, setCategories] = useState([])
 
@@ -73,9 +73,9 @@ export default function AdminProductsPage() {
       })
 
       if (filters.search) params.append("search", filters.search)
-      if (filters.category) params.append("category", filters.category)
-      if (filters.isActive) params.append("isActive", filters.isActive)
-      if (filters.inStock) params.append("inStock", filters.inStock)
+      if (filters.category && filters.category !== "all") params.append("category", filters.category)
+      if (filters.isActive && filters.isActive !== "all") params.append("isActive", filters.isActive)
+      if (filters.inStock && filters.inStock !== "all") params.append("inStock", filters.inStock)
 
       const response = await axiosInstance.get(`/api/products?${params}`)
 
@@ -227,7 +227,7 @@ export default function AdminProductsPage() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
@@ -244,7 +244,7 @@ export default function AdminProductsPage() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="true">Active</SelectItem>
                 <SelectItem value="false">Inactive</SelectItem>
               </SelectContent>
@@ -258,7 +258,7 @@ export default function AdminProductsPage() {
                 <SelectValue placeholder="All Stock" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Stock</SelectItem>
+                <SelectItem value="all">All Stock</SelectItem>
                 <SelectItem value="true">In Stock</SelectItem>
                 <SelectItem value="false">Out of Stock</SelectItem>
               </SelectContent>

@@ -28,7 +28,7 @@ export default function ShopPage() {
   })
   const [filters, setFilters] = useState({
     search: "",
-    category: "",
+    category: "all",
     sortBy: "createdAt",
     sortOrder: "desc",
   })
@@ -50,7 +50,7 @@ export default function ShopPage() {
       })
 
       if (filters.search) params.append("search", filters.search)
-      if (filters.category) params.append("category", filters.category)
+      if (filters.category && filters.category !== "all") params.append("category", filters.category)
 
       const response = await axiosInstance.get(`/api/products?${params}`)
 
@@ -118,7 +118,7 @@ export default function ShopPage() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
