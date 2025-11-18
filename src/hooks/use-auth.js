@@ -2,6 +2,7 @@
 
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import axiosInstance from '@/lib/axios'
 
 export function useAuth() {
   const { data: session, status } = useSession()
@@ -32,81 +33,37 @@ export function useAuth() {
 
   const register = async (userData) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed')
-      }
-
-      return { success: true, message: data.message }
+      const response = await axiosInstance.post('/api/auth/register', userData)
+      return { success: true, message: response.data.message }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.userMessage || error.message }
     }
   }
 
   const verifyEmail = async (token) => {
     try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Verification failed')
-      }
-
-      return { success: true, message: data.message }
+      const response = await axiosInstance.post('/api/auth/verify-email', { token })
+      return { success: true, message: response.data.message }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.userMessage || error.message }
     }
   }
 
   const forgotPassword = async (email) => {
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Request failed')
-      }
-
-      return { success: true, message: data.message }
+      const response = await axiosInstance.post('/api/auth/forgot-password', { email })
+      return { success: true, message: response.data.message }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.userMessage || error.message }
     }
   }
 
   const resetPassword = async (token, password) => {
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Reset failed')
-      }
-
-      return { success: true, message: data.message }
+      const response = await axiosInstance.post('/api/auth/reset-password', { token, password })
+      return { success: true, message: response.data.message }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.userMessage || error.message }
     }
   }
 

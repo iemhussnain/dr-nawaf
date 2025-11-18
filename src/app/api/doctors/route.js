@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Doctor from '@/models/Doctor'
 import User from '@/models/User'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 /**
  * GET /api/doctors
  * Get all doctors with optional filters
  */
-export async function GET(req) {
+async function getHandler(req) {
   try {
     await dbConnect()
 
@@ -76,7 +77,7 @@ export async function GET(req) {
  * POST /api/doctors
  * Create a new doctor (Admin only)
  */
-export async function POST(req) {
+async function postHandler(req) {
   try {
     // Check authentication and authorization
     const session = await getServerSession(authOptions)
@@ -176,3 +177,6 @@ export async function POST(req) {
     )
   }
 }
+
+export const GET = withRateLimit(getHandler, 'api')
+export const POST = withRateLimit(postHandler, 'api')

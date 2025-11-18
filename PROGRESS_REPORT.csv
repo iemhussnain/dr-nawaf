@@ -1,0 +1,24 @@
+Category,Task,Status,Priority,Effort_Hours,Assignee,Completion_Date,Author,Blockers
+Phase 1,Project Setup & Foundation,Completed,High,8,Claude & Hussnain Ali,2025-11-15,Claude & Hussnain Ali,None
+Phase 2,Authentication System,Completed,High,12,Claude,2025-11-16,Claude,None
+Phase 3,Doctor Management,Completed,High,10,Claude,2025-11-16,Claude,None
+Phase 4,Patient Features,Completed,High,8,Claude,2025-11-16,Claude,None
+Phase 5,Appointment Booking,Completed,High,12,Claude,2025-11-16,Claude,None
+Phase 6,Services Management,Completed,Medium,6,Claude,2025-11-16,Claude,None
+Phase 7,Blog/Articles System,Completed,Medium,8,Claude,2025-11-16,Claude,None
+Phase 8,E-Commerce System,Completed,High,10,Claude,2025-11-16,Claude,None
+Phase 9,Notifications & Reminders,Completed,Medium,6,Claude,2025-11-16,Claude,None
+Phase 10,Security & Optimization,Completed,High,10,Claude,2025-11-16,Claude,None
+Security,Apply Rate Limiting to API Routes,Pending,High,5,Unassigned,N/A,N/A,None
+Security,File Upload Validation Middleware,Pending,High,3,Unassigned,N/A,N/A,None
+E-Commerce,Complete Payment Integration,Pending,Medium,7,Unassigned,N/A,N/A,Payment Gateway Credentials
+Backend,Patient Data API Integration,Pending,Medium,3,Unassigned,N/A,N/A,None
+Testing,Unit Tests Setup,Pending,High,8,Unassigned,N/A,N/A,None
+Testing,Integration Tests,Pending,High,6,Unassigned,N/A,N/A,None
+Testing,E2E Tests,Pending,Medium,8,Unassigned,N/A,N/A,None
+DevOps,CI/CD Pipeline Setup,Pending,High,4,Unassigned,N/A,N/A,None
+DevOps,Staging Deployment,Pending,High,3,Unassigned,N/A,N/A,MongoDB Atlas & Environment Config
+DevOps,Production Deployment,Pending,High,3,Unassigned,N/A,N/A,Staging Verification
+Documentation,API Documentation (Swagger),Pending,Medium,4,Unassigned,N/A,N/A,None
+Monitoring,Setup Error Tracking (Sentry),Pending,Medium,2,Unassigned,N/A,N/A,None
+Monitoring,Setup Analytics,Pending,Medium,2,Unassigned,N/A,N/A,None

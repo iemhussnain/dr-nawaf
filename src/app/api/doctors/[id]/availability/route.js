@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Doctor from '@/models/Doctor'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 /**
  * PUT /api/doctors/:id/availability
  * Update doctor availability and holidays
  */
-export async function PUT(req, { params }) {
+async function putHandler(req, { params }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
@@ -92,7 +93,7 @@ export async function PUT(req, { params }) {
  * POST /api/doctors/:id/availability
  * Add holiday to doctor's schedule
  */
-export async function POST(req, { params }) {
+async function postHandler(req, { params }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
@@ -158,3 +159,6 @@ export async function POST(req, { params }) {
     )
   }
 }
+
+export const PUT = withRateLimit(putHandler, 'api')
+export const POST = withRateLimit(postHandler, 'api')

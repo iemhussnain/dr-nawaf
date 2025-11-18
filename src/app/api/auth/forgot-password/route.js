@@ -1,60 +1,55 @@
-import { NextResponse } from 'next/server'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import { sendPasswordResetEmail } from '@/lib/email'
 import crypto from 'crypto'
+import { asyncHandler, successResponse, formatMongoDBError } from '@/lib/errors'
+import { BadRequestError } from '@/lib/errors/APIError'
+import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
-export async function POST(req) {
-  try {
-    await dbConnect()
+const handler = asyncHandler(async (req) => {
+  await dbConnect()
 
-    const { email } = await req.json()
+  const { email } = await req.json()
 
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      )
-    }
+  if (!email) {
+    throw new BadRequestError('Email is required')
+  }
 
-    // Find user by email
-    const user = await User.findOne({ email })
+  // Find user by email
+  const user = await User.findOne({ email }).catch((error) => {
+    throw formatMongoDBError(error)
+  })
 
-    // Don't reveal if user exists or not (security)
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: true,
-          message: 'If an account exists with this email, a password reset link has been sent.',
-        },
-        { status: 200 }
-      )
-    }
-
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex')
-    const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour
-
-    // Save token to user
-    user.resetPasswordToken = resetToken
-    user.resetPasswordExpires = resetTokenExpiry
-    await user.save()
-
-    // Send reset email
-    await sendPasswordResetEmail(user.email, resetToken)
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'If an account exists with this email, a password reset link has been sent.',
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Forgot password error:', error)
-    return NextResponse.json(
-      { error: 'Failed to process request' },
-      { status: 500 }
+  // Don't reveal if user exists or not (security best practice)
+  if (!user) {
+    logger.info('Password reset requested for non-existent email', { email })
+    return successResponse(
+      null,
+      'If an account exists with this email, a password reset link has been sent.'
     )
   }
-}
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour
+
+  // Save token to user
+  user.resetPasswordToken = resetToken
+  user.resetPasswordExpires = resetTokenExpiry
+  await user.save().catch((error) => {
+    throw formatMongoDBError(error)
+  })
+
+  // Send reset email
+  await sendPasswordResetEmail(user.email, resetToken)
+
+  logger.info('Password reset email sent', { email: user.email })
+
+  return successResponse(
+    null,
+    'If an account exists with this email, a password reset link has been sent.'
+  )
+})
+
+export const POST = withRateLimit(handler, 'passwordReset')

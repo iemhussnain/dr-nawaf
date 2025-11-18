@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import Doctor from '@/models/Doctor'
 import User from '@/models/User'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
 /**
  * GET /api/doctors/:id
  * Get single doctor by ID
  */
-export async function GET(req, { params }) {
+async function getHandler(req, { params }) {
   try {
     await dbConnect()
 
@@ -44,7 +45,7 @@ export async function GET(req, { params }) {
  * PUT /api/doctors/:id
  * Update doctor (Admin or Doctor themselves)
  */
-export async function PUT(req, { params }) {
+async function putHandler(req, { params }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
@@ -134,7 +135,7 @@ export async function PUT(req, { params }) {
  * DELETE /api/doctors/:id
  * Delete/deactivate doctor (Admin only)
  */
-export async function DELETE(req, { params }) {
+async function deleteHandler(req, { params }) {
   try {
     // Check authentication and authorization
     const session = await getServerSession(authOptions)
@@ -192,3 +193,7 @@ export async function DELETE(req, { params }) {
     )
   }
 }
+
+export const GET = withRateLimit(getHandler, 'api')
+export const PUT = withRateLimit(putHandler, 'api')
+export const DELETE = withRateLimit(deleteHandler, 'api')

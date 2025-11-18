@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import Doctor from '@/models/Doctor'
 import Patient from '@/models/Patient'

@@ -1,55 +1,47 @@
-import { NextResponse } from 'next/server'
-import dbConnect from '@/lib/db'
+import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
+import { asyncHandler, successResponse, formatMongoDBError } from '@/lib/errors'
+import { BadRequestError } from '@/lib/errors/APIError'
+import logger from '@/lib/errors/logger'
+import { withRateLimit } from '@/middleware/rateLimiter'
 
-export async function POST(req) {
-  try {
-    await dbConnect()
+const handler = asyncHandler(async (req) => {
+  await dbConnect()
 
-    const { token } = await req.json()
+  const { token } = await req.json()
 
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Verification token is required' },
-        { status: 400 }
-      )
-    }
-
-    // Find user by verification token
-    const user = await User.findOne({ verificationToken: token })
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired verification token' },
-        { status: 400 }
-      )
-    }
-
-    // Check if already verified
-    if (user.isVerified) {
-      return NextResponse.json(
-        { message: 'Email already verified' },
-        { status: 200 }
-      )
-    }
-
-    // Update user
-    user.isVerified = true
-    user.verificationToken = undefined
-    await user.save()
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Email verified successfully! You can now login.',
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Email verification error:', error)
-    return NextResponse.json(
-      { error: 'Email verification failed' },
-      { status: 500 }
-    )
+  if (!token) {
+    throw new BadRequestError('Verification token is required')
   }
-}
+
+  // Find user by verification token
+  const user = await User.findOne({ verificationToken: token }).catch((error) => {
+    throw formatMongoDBError(error)
+  })
+
+  if (!user) {
+    throw new BadRequestError('Invalid or expired verification token')
+  }
+
+  // Check if already verified
+  if (user.isVerified) {
+    logger.info('Email already verified', { email: user.email })
+    return successResponse(null, 'Email already verified')
+  }
+
+  // Update user
+  user.isVerified = true
+  user.verificationToken = undefined
+  await user.save().catch((error) => {
+    throw formatMongoDBError(error)
+  })
+
+  logger.info('Email verified successfully', { email: user.email })
+
+  return successResponse(
+    null,
+    'Email verified successfully! You can now login.'
+  )
+})
+
+export const POST = withRateLimit(handler, 'auth')

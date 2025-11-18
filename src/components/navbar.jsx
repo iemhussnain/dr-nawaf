@@ -24,6 +24,21 @@ export function Navbar() {
 
   const isActive = (href) => pathname === href
 
+  // Get dashboard route and label based on user role
+  const getDashboardInfo = () => {
+    if (!session?.user?.role) return { href: '/my-appointments', label: 'Dashboard' }
+
+    switch (session.user.role) {
+      case 'admin':
+        return { href: '/admin/dashboard', label: 'Admin Dashboard' }
+      case 'doctor':
+        return { href: '/doctor/dashboard', label: 'Doctor Dashboard' }
+      case 'patient':
+      default:
+        return { href: '/my-appointments', label: 'My Appointments' }
+    }
+  }
+
   return (
     <nav className="sticky top-0 z-50 border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-sm">
       <div className="container mx-auto px-4">
@@ -58,9 +73,9 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {session ? (
               <>
-                <Link href={session.user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}>
+                <Link href={getDashboardInfo().href}>
                   <Button variant="ghost">
-                    {session.user.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+                    {getDashboardInfo().label}
                   </Button>
                 </Link>
                 <Button variant="outline" onClick={() => signOut()}>
@@ -123,9 +138,9 @@ export function Navbar() {
             <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
               {session ? (
                 <>
-                  <Link href={session.user.role === 'admin' ? '/admin/dashboard' : '/dashboard'} onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={getDashboardInfo().href} onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
-                      {session.user.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+                      {getDashboardInfo().label}
                     </Button>
                   </Link>
                   <Button

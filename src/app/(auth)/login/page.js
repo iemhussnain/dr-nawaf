@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
+import axiosInstance from "@/lib/axios"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,8 +44,27 @@ export default function LoginPage() {
 
       if (result.success) {
         toast.success("Login successful!")
-        router.push("/dashboard")
-        router.refresh()
+
+        // Wait for session to update, then redirect based on role
+        setTimeout(async () => {
+          try {
+            const response = await axiosInstance.get('/api/auth/session')
+            const sessionData = response.data
+
+            if (sessionData?.user?.role === 'admin') {
+              router.push("/admin/dashboard")
+            } else if (sessionData?.user?.role === 'doctor') {
+              router.push("/doctor/dashboard")
+            } else {
+              router.push("/my-appointments")
+            }
+            router.refresh()
+          } catch (error) {
+            // If session fetch fails, just redirect to appointments
+            router.push("/my-appointments")
+            router.refresh()
+          }
+        }, 500)
       } else {
         setError(result.error || "Login failed")
         toast.error(result.error || "Login failed")
@@ -72,7 +92,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {error && (
                 <Alert variant="destructive" className="bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-900">
                   <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
