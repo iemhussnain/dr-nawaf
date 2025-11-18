@@ -5,13 +5,14 @@ import {
   ValidationError,
   DatabaseError,
   InternalServerError,
+  ConflictError,
 } from './APIError'
 import { logger } from './logger'
 
 /**
  * Format MongoDB errors into user-friendly messages
  */
-function formatMongoDBError(error) {
+export function formatMongoDBError(error) {
   // Duplicate key error
   if (error.code === 11000) {
     const field = Object.keys(error.keyPattern || {})[0]
@@ -41,7 +42,7 @@ function formatMongoDBError(error) {
 /**
  * Format Zod validation errors
  */
-function formatZodError(error) {
+export function formatZodError(error) {
   const errors = error.errors.map((err) => ({
     field: err.path.join('.'),
     message: err.message,

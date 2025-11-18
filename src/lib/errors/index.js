@@ -18,6 +18,8 @@ export {
   asyncHandler,
   validateRequest,
   successResponse,
+  formatMongoDBError,
+  formatZodError,
 } from './errorHandler'
 
 // Export logger
