@@ -95,7 +95,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Welcome back! Here's what's happening today.
+          Welcome back! Here`&apos`s what`&apos`s happening today.
         </p>
       </div>
 
@@ -153,7 +153,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentActivities.map((activity) => {
-                const Icon = activity.icon
+                const Icon = activity.icon;
                 return (
                   <div key={activity.id} className="flex items-start gap-3">
                     <div className={`p-2 rounded-lg ${activity.iconColor}`}>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
             <Button variant="ghost" className="w-full mt-4">
@@ -194,7 +194,10 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                       <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-                        {appointment.patient.split(" ").map(n => n[0]).join("")}
+                        {appointment.patient
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </span>
                     </div>
                     <div>
@@ -207,11 +210,13 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      appointment.status === "confirmed"
-                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                        : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        appointment.status === "confirmed"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                          : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+                      }`}
+                    >
                       {appointment.status}
                     </span>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -228,5 +233,5 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
