@@ -1,14 +1,20 @@
 import nodemailer from 'nodemailer'
 
-// Create reusable transporter
+// Create reusable transporter using consistent EMAIL_* environment variables
 const createTransporter = () => {
+  // Check if email is configured
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER) {
+    console.warn('⚠️ Email not configured. Set EMAIL_HOST and EMAIL_USER environment variables.')
+    return null
+  }
+
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || 587,
-    secure: false, // true for 465, false for other ports
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT || '587'),
+    secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for 587
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     },
   })
 }
@@ -80,6 +86,12 @@ const getEmailTemplate = (title, content) => {
 export const sendAppointmentReminder = async ({ to, patientName, appointmentDate, doctorName, service }) => {
   try {
     const transporter = createTransporter()
+    if (!transporter) {
+      console.log('⚠️ Email not configured. Skipping appointment reminder.')
+      return { success: false, error: 'Email not configured' }
+    }
+
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const content = `
       <h2>Appointment Reminder</h2>
@@ -95,11 +107,11 @@ export const sendAppointmentReminder = async ({ to, patientName, appointmentDate
       </ul>
       <p>Please arrive 10 minutes early for check-in.</p>
       <p>If you need to reschedule or cancel, please contact us at least 24 hours in advance.</p>
-      <a href="${process.env.NEXT_PUBLIC_APP_URL}/appointments" class="button">View My Appointments</a>
+      <a href="${appUrl}/appointments" class="button">View My Appointments</a>
     `
 
     const mailOptions = {
-      from: `"Dr. Nawaf Medical Center" <${process.env.SMTP_USER}>`,
+      from: process.env.EMAIL_FROM || `"Dr. Nawaf Medical Center" <${process.env.EMAIL_USER}>`,
       to,
       subject: 'Appointment Reminder - Dr. Nawaf Medical Center',
       html: getEmailTemplate('Appointment Reminder', content),
@@ -118,6 +130,12 @@ export const sendAppointmentReminder = async ({ to, patientName, appointmentDate
 export const sendOrderConfirmation = async ({ to, orderNumber, customerName, items, total }) => {
   try {
     const transporter = createTransporter()
+    if (!transporter) {
+      console.log('⚠️ Email not configured. Skipping order confirmation.')
+      return { success: false, error: 'Email not configured' }
+    }
+
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const itemsList = items
       .map(
@@ -137,11 +155,11 @@ export const sendOrderConfirmation = async ({ to, orderNumber, customerName, ite
       </ul>
       <p><strong>Total:</strong> SAR ${total.toFixed(2)}</p>
       <p>We'll send you another email when your order ships.</p>
-      <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders/${orderNumber}" class="button">View Order Details</a>
+      <a href="${appUrl}/orders/${orderNumber}" class="button">View Order Details</a>
     `
 
     const mailOptions = {
-      from: `"Dr. Nawaf Medical Center" <${process.env.SMTP_USER}>`,
+      from: process.env.EMAIL_FROM || `"Dr. Nawaf Medical Center" <${process.env.EMAIL_USER}>`,
       to,
       subject: `Order Confirmation - ${orderNumber}`,
       html: getEmailTemplate('Order Confirmation', content),
@@ -160,6 +178,12 @@ export const sendOrderConfirmation = async ({ to, orderNumber, customerName, ite
 export const sendOrderStatusUpdate = async ({ to, orderNumber, customerName, status, trackingNumber }) => {
   try {
     const transporter = createTransporter()
+    if (!transporter) {
+      console.log('⚠️ Email not configured. Skipping order status update.')
+      return { success: false, error: 'Email not configured' }
+    }
+
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const statusMessages = {
       processing: 'Your order is being processed and will be shipped soon.',
@@ -174,11 +198,11 @@ export const sendOrderStatusUpdate = async ({ to, orderNumber, customerName, sta
       <p>Your order <strong>${orderNumber}</strong> status has been updated to: <strong>${status.toUpperCase()}</strong></p>
       <p>${statusMessages[status] || 'Your order status has been updated.'}</p>
       ${trackingNumber ? `<p><strong>Tracking Number:</strong> ${trackingNumber}</p>` : ''}
-      <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders/${orderNumber}" class="button">Track Order</a>
+      <a href="${appUrl}/orders/${orderNumber}" class="button">Track Order</a>
     `
 
     const mailOptions = {
-      from: `"Dr. Nawaf Medical Center" <${process.env.SMTP_USER}>`,
+      from: process.env.EMAIL_FROM || `"Dr. Nawaf Medical Center" <${process.env.EMAIL_USER}>`,
       to,
       subject: `Order Update - ${orderNumber}`,
       html: getEmailTemplate('Order Status Update', content),
@@ -197,9 +221,13 @@ export const sendOrderStatusUpdate = async ({ to, orderNumber, customerName, sta
 export const sendNewsletter = async ({ to, subject, content }) => {
   try {
     const transporter = createTransporter()
+    if (!transporter) {
+      console.log('⚠️ Email not configured. Skipping newsletter.')
+      return { success: false, error: 'Email not configured' }
+    }
 
     const mailOptions = {
-      from: `"Dr. Nawaf Medical Center Newsletter" <${process.env.SMTP_USER}>`,
+      from: process.env.EMAIL_FROM || `"Dr. Nawaf Medical Center Newsletter" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html: getEmailTemplate(subject, content),
@@ -218,6 +246,12 @@ export const sendNewsletter = async ({ to, subject, content }) => {
 export const sendWelcomeEmail = async ({ to, name }) => {
   try {
     const transporter = createTransporter()
+    if (!transporter) {
+      console.log('⚠️ Email not configured. Skipping welcome email.')
+      return { success: false, error: 'Email not configured' }
+    }
+
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const content = `
       <h2>Welcome to Dr. Nawaf Medical Center!</h2>
@@ -230,11 +264,11 @@ export const sendWelcomeEmail = async ({ to, name }) => {
         <li>Order medications and health products</li>
         <li>Receive health tips and updates</li>
       </ul>
-      <a href="${process.env.NEXT_PUBLIC_APP_URL}" class="button">Get Started</a>
+      <a href="${appUrl}" class="button">Get Started</a>
     `
 
     const mailOptions = {
-      from: `"Dr. Nawaf Medical Center" <${process.env.SMTP_USER}>`,
+      from: process.env.EMAIL_FROM || `"Dr. Nawaf Medical Center" <${process.env.EMAIL_USER}>`,
       to,
       subject: 'Welcome to Dr. Nawaf Medical Center',
       html: getEmailTemplate('Welcome', content),
@@ -253,8 +287,13 @@ export const sendWelcomeEmail = async ({ to, name }) => {
 export const sendPasswordResetEmail = async ({ to, name, resetToken }) => {
   try {
     const transporter = createTransporter()
+    if (!transporter) {
+      console.log('⚠️ Email not configured. Skipping password reset email.')
+      return { success: false, error: 'Email not configured' }
+    }
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${resetToken}`
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const resetUrl = `${appUrl}/reset-password?token=${resetToken}`
 
     const content = `
       <h2>Password Reset Request</h2>
@@ -266,7 +305,7 @@ export const sendPasswordResetEmail = async ({ to, name, resetToken }) => {
     `
 
     const mailOptions = {
-      from: `"Dr. Nawaf Medical Center" <${process.env.SMTP_USER}>`,
+      from: process.env.EMAIL_FROM || `"Dr. Nawaf Medical Center" <${process.env.EMAIL_USER}>`,
       to,
       subject: 'Password Reset Request',
       html: getEmailTemplate('Password Reset', content),
